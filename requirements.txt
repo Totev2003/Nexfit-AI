@@ -1,0 +1,3 @@
+plotly
+g4f
+pandas

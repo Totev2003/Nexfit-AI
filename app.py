@@ -397,7 +397,7 @@ else:
 
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            weight = st.number_input("Тегло (кг)", value=st.session_state.current_weight, step=0.1)
+            weight = st.number_input("Тегло (кг)", value=st.session_state.current_weight, step=0.1, key="daily_weight_input")
         with col2:
             water = st.number_input("Вода (литри)", value=2.0, step=0.25)
         with col3:

@@ -24,18 +24,7 @@ if "data" not in st.session_state:
     else:
         st.session_state.data = {}
 
-if "sb_current_weight" not in st.session_state:
-    st.session_state.sb_current_weight = 75.0
-if "tracking_date" not in st.session_state:
-    st.session_state.tracking_date = date.today()
-if "ai_response" not in st.session_state:
-    st.session_state.ai_response = None
-
-# СЛЕДЕНЕ ДАЛИ ПОТРЕБИТЕЛЯТ Е НАТИСНАЛ БУТОНА "ЗАПОЧНИ"
-if "app_started" not in st.session_state:
-    st.session_state.app_started = False
-
-# ИНИЦИАЛИЗАЦИЯ НА ПРОФИЛА В SESSION STATE
+# ИНИЦИАЛИЗИРАНЕ НА ПРОФИЛА В SESSION STATE
 if 'prof_name' not in st.session_state: st.session_state.prof_name = "Цветомира"
 if 'prof_gender' not in st.session_state: st.session_state.prof_gender = "Жена"
 if 'prof_age' not in st.session_state: st.session_state.prof_age = 28
@@ -44,6 +33,17 @@ if 'prof_activity' not in st.session_state: st.session_state.prof_activity = "У
 if 'prof_start_w' not in st.session_state: st.session_state.prof_start_w = 75.0
 if 'prof_target_w' not in st.session_state: st.session_state.prof_target_w = 60.0
 if 'avatar_data' not in st.session_state: st.session_state.avatar_data = None
+
+# ТОВА Е КЛЮЧЪТ, КОЙТО ЩЕ УПРАВЛЯВА ТЕГЛОТО НАВСЯКЪДЕ, БЕЗ КОНФЛИКТИ
+if "current_weight" not in st.session_state:
+    st.session_state.current_weight = 75.0
+
+if "tracking_date" not in st.session_state:
+    st.session_state.tracking_date = date.today()
+if "ai_response" not in st.session_state:
+    st.session_state.ai_response = None
+if "app_started" not in st.session_state:
+    st.session_state.app_started = False
 
 # СЕСИОННИ ПРОМЕНЛИВИ ЗА БЪРЗОТО ДОБАВЯНЕ НА ХРАНИ
 if 'selected_foods' not in st.session_state: st.session_state.selected_foods = []
@@ -128,7 +128,6 @@ st.markdown("""
         transform: scale(1.05);
     }
 
-    /* ОСНОВЕН СТИЛ ЗА БУТОНИТЕ */
     .stButton>button {
         background: linear-gradient(90deg, #0ea5e9, #6366f1);
         color: white;
@@ -144,7 +143,6 @@ st.markdown("""
         box-shadow: 0 15px 30px rgba(14, 165, 233, 0.4);
     }
 
-    /* СПЕЦИАЛЕН СТИЛ ЗА БУТОНИТЕ ЗА БЪРЗО ДОБАВЯНЕ НА ХРАНИ */
     div[data-testid="stHorizontalBlock"] .food-btn button {
         background: linear-gradient(90deg, #0ea5e9, #6366f1) !important;
         color: white !important;
@@ -171,8 +169,6 @@ st.markdown("""
 # ЛОГИКА 1: ПОТРЕБИТЕЛЯТ ВСЕ ОЩЕ НЕ Е НАТИСНАЛ "ЗАПОЧНИ"
 # =================================================================
 if not st.session_state.app_started:
-    
-    # 1. Голямо и ярко заглавие НАД снимката
     st.markdown("""
     <div style="text-align: center; margin-top: 20px; margin-bottom: 30px;">
         <h1 style="font-size: 5.5rem !important; font-weight: 900; margin: 0; line-height: 1.1;
@@ -188,7 +184,6 @@ if not st.session_state.app_started:
     </div>
     """, unsafe_allow_html=True)
 
-    # 2. Чиста снимка (без текст върху нея) като банер
     st.markdown("""
     <div style="height: 380px; border-radius: 24px; overflow: hidden; margin-bottom: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
         <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b" 
@@ -196,7 +191,6 @@ if not st.session_state.app_started:
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. Трите колони с предимствата
     col1, col2, col3 = st.columns(3)
     with col1:
         st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd", use_container_width=True)
@@ -211,7 +205,6 @@ if not st.session_state.app_started:
         st.markdown("<h4 style='text-align:center;'>📈 Проследяване на прогреса</h4>", unsafe_allow_html=True)
         st.write("Графики, статистики и мотивация всеки ден.")
     
-    # 4. ЦЕНОВИ ПЛАНОВЕ
     st.markdown("---")
     st.markdown("<h2 style='text-align:center; margin-bottom: 30px;'>🎯 Избери своя план за промяна</h2>", unsafe_allow_html=True)
     
@@ -269,7 +262,6 @@ if not st.session_state.app_started:
             
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # 5. Статистики долу
     c_stat1, c_stat2, c_stat3 = st.columns(3)
     with c_stat1:
         st.markdown("<div style='text-align:center; font-size:1.1rem;'>🔥 <b>14 200+</b> активни потребители</div>", unsafe_allow_html=True)
@@ -354,8 +346,12 @@ else:
         ], key="prof_activity")
 
         st.markdown("<p style='font-weight:600; margin-bottom:-5px; color:#475569;'>⚙️ Биометрични Цели</p>", unsafe_allow_html=True)
-        st.number_input("Текущо тегло (кг)", 30.0, 200.0, step=0.1, key="sb_current_weight")
-        st.number_input("Текущо тегло (кг)", 30.0, 200.0, step=0.1, key="current_weight")
+        st.number_input("Начално тегло (кг)", 30.0, 200.0, step=0.1, key="prof_start_w")
+        
+        # МАЛКА ПРОМЯНА: Махаме 'key', за да не заключва уиджета и да можем да го обновяваме при запис на деня
+        current_w_input = st.number_input("Текущо тегло (кг)", 30.0, 200.0, value=float(st.session_state.current_weight), step=0.1)
+        st.session_state.current_weight = current_w_input
+
         st.number_input("Целево тегло (кг)", 30.0, 200.0, step=0.1, key="prof_target_w")
 
         if st.button("💾 Запази промените", use_container_width=True):
@@ -397,7 +393,7 @@ else:
 
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            weight = st.number_input("Тегло (кг)", value=st.session_state.current_weight, step=0.1, key="daily_weight_input")
+            weight = st.number_input("Тегло (кг)", value=float(st.session_state.current_weight), step=0.1, key="daily_weight_input")
         with col2:
             water = st.number_input("Вода (литри)", value=2.0, step=0.25)
         with col3:
@@ -466,7 +462,7 @@ else:
                     "food": food,
                     "activity": activity,
                     "target_calories": calorie_target,
-                    "consumed_calories": st.session_state.get('quick_calories', 0) # По подразбиране
+                    "consumed_calories": st.session_state.get('quick_calories', 0)
                 }
                 today_str = get_date_str(st.session_state.tracking_date)
                 st.session_state.data[today_str] = entry
@@ -588,7 +584,7 @@ else:
                 if feedback.strip():
                     with st.spinner("AI преработва и адаптира плана..."):
                         try:
-                            fb_prompt = f"Предишният генериран план:\n{st.session_state.ai_response}\n\nПотребителска обратна връзка: {feedback}\n\nОтговори на потребителя и коригирай/адаптирай плана спрямо неговите изисквания."
+                            fb_prompt = f"Предишният генериран план:\n{st.session_state.ai_response}\n\nПотребителска обратна връзка: {feedback}\n\nОтговори на потребителя и коригирай/адаптирай плана спрямо неговия коментар."
                             new_response = g4f.ChatCompletion.create(
                                 model=g4f.models.default,
                                 messages=[{"role": "user", "content": fb_prompt}]

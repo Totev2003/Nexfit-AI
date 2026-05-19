@@ -24,8 +24,8 @@ if "data" not in st.session_state:
     else:
         st.session_state.data = {}
 
-if "current_weight" not in st.session_state:
-    st.session_state.current_weight = 75.0
+if "sb_current_weight" not in st.session_state:
+    st.session_state.sb_current_weight = 75.0
 if "tracking_date" not in st.session_state:
     st.session_state.tracking_date = date.today()
 if "ai_response" not in st.session_state:
@@ -354,7 +354,7 @@ else:
         ], key="prof_activity")
 
         st.markdown("<p style='font-weight:600; margin-bottom:-5px; color:#475569;'>⚙️ Биометрични Цели</p>", unsafe_allow_html=True)
-        st.number_input("Начално тегло (кг)", 30.0, 200.0, step=0.1, key="prof_start_w")
+        st.number_input("Текущо тегло (кг)", 30.0, 200.0, step=0.1, key="sb_current_weight")
         st.number_input("Текущо тегло (кг)", 30.0, 200.0, step=0.1, key="current_weight")
         st.number_input("Целево тегло (кг)", 30.0, 200.0, step=0.1, key="prof_target_w")
 
